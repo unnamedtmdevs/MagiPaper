@@ -78,3 +78,4 @@ class DetailViewModel: ObservableObject {
     }
 }
 
+
