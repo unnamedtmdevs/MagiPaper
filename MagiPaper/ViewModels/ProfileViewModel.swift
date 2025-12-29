@@ -5,6 +5,7 @@
 
 import Foundation
 import Combine
+import WebKit
 
 class ProfileViewModel: ObservableObject {
     @Published var userName: String = ""
@@ -12,6 +13,7 @@ class ProfileViewModel: ObservableObject {
     @Published var preferredReadingTime: UserPreferences.ReadingTime = .anytime
     @Published var favoriteArticles: [Article] = []
     @Published var showResetAlert: Bool = false
+    @Published var showDeleteAccountAlert: Bool = false
     
     private let contentService: ContentService
     private let preferences: UserPreferences
@@ -74,6 +76,35 @@ class ProfileViewModel: ObservableObject {
     
     func resetPreferences() {
         preferences.resetPreferences()
+        loadPreferences()
+    }
+    
+    func requestDeleteAccount() {
+        showDeleteAccountAlert = true
+    }
+    
+    func deleteAccount() {
+        // Полное удаление всех данных пользователя
+        preferences.resetPreferences()
+        
+        // Очищаем дополнительные данные
+        UserDefaults.standard.removeObject(forKey: "cookie")
+        UserDefaults.standard.removeObject(forKey: "first_open")
+        UserDefaults.standard.removeObject(forKey: "silka")
+        UserDefaults.standard.removeObject(forKey: "favoriteArticles")
+        UserDefaults.standard.removeObject(forKey: "isBlock")
+        
+        // Очищаем cookies WebView
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        
+        // Очищаем кэш WebView
+        if #available(iOS 9.0, *) {
+            let dataStore = WKWebsiteDataStore.default()
+            dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+                dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records) { }
+            }
+        }
+        
         loadPreferences()
     }
     

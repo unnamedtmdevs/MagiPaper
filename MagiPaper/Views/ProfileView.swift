@@ -154,20 +154,45 @@ struct ProfileView: View {
                         }
                         .padding(.horizontal)
                         
-                        // Reset Button
-                        Button(action: {
-                            viewModel.requestResetPreferences()
-                        }) {
-                            HStack {
-                                Image(systemName: "arrow.counterclockwise")
-                                Text("Reset All Preferences")
-                                    .font(.system(size: 17, weight: .semibold))
+                        // Account Deletion Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            SectionHeader(title: "Account")
+                            
+                            VStack(spacing: 12) {
+                                // Reset Preferences Button
+                                Button(action: {
+                                    viewModel.requestResetPreferences()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "arrow.counterclockwise")
+                                        Text("Reset All Preferences")
+                                            .font(.system(size: 17, weight: .semibold))
+                                        Spacer()
+                                    }
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color("SecondaryBackground"))
+                                    .cornerRadius(12)
+                                }
+                                
+                                // Delete Account Data Button
+                                Button(action: {
+                                    viewModel.requestDeleteAccount()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "trash.fill")
+                                        Text("Delete Account & All Data")
+                                            .font(.system(size: 17, weight: .semibold))
+                                        Spacer()
+                                    }
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color("AccentRed"))
+                                    .cornerRadius(12)
+                                }
                             }
-                            .foregroundColor(Color("AccentRed"))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color("SecondaryBackground"))
-                            .cornerRadius(12)
                         }
                         .padding(.horizontal)
                         .padding(.bottom, 32)
@@ -190,6 +215,14 @@ struct ProfileView: View {
                 }
             } message: {
                 Text("Are you sure you want to reset all preferences? This action cannot be undone.")
+            }
+            .alert("Delete Account", isPresented: $viewModel.showDeleteAccountAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete Account", role: .destructive) {
+                    viewModel.deleteAccount()
+                }
+            } message: {
+                Text("This will permanently delete your account and all associated data including:\n\n• Your profile and preferences\n• All saved articles\n• Reading history\n• All personalization settings\n\nThis action cannot be undone.")
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
